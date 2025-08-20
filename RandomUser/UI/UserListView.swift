@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserListView: View {
-    @StateObject private var viewModel = UserViewModel()
+    @StateObject var viewModel: UserViewModel
 
     var body: some View {
         NavigationView {
@@ -59,44 +59,46 @@ struct UserListView: View {
 
 
 struct UserListView_Previews: PreviewProvider {
-    class MockUserViewModel: UserViewModel {
-        override init() {
-            super.init()
-            self.users = [
-                User(
-                    gender: "female",
-                    name: User.Name(title: "Ms", first: "Jane", last: "Smith"),
-                    location: User.Location(
-                        street: User.Location.Street(number: 456, name: "Broadway"),
-                        city: "Los Angeles",
-                        state: "CA",
-                        country: "USA",
-                        coordinates: User.Location.Coordinates(latitude: "34.0522", longitude: "118.2437"),
-                        timezone: User.Location.TimeZoneInfo(offset: "-8:00", description: "Pacific Time")
-                    ),
-                    email: "jane.smith@example.com",
-                    login: User.Login(uuid: "67890", username: "janesmith", password: "securepass"),
-                    dob: User.DateInfo(date: "1990-05-20T10:00:00Z", age: 35),
-                    registered: User.DateInfo(date: "2015-02-15T12:00:00Z", age: 10),
-                    phone: "555-9876",
-                    cell: "555-6543",
-                    idField: User.APIID(name: "SSN", value: "987-65-4321"),
-                    picture: User.Picture(
-                        large: "https://randomuser.me/api/portraits/women/1.jpg",
-                        medium: "https://randomuser.me/api/portraits/med/women/1.jpg",
-                        thumbnail: "https://randomuser.me/api/portraits/thumb/women/1.jpg"
-                    ),
-                    nat: "US"
-                )
-            ]
+    
+    // MARK: - Mock Service (Dependency)
+    class MockUserService: UserService {
+        func fetchUsers(completion: @escaping (Result<[User], Error>) -> Void) {
+            let mockUser = User(
+                gender: "female",
+                name: User.Name(title: "Ms", first: "Jane", last: "Smith"),
+                location: User.Location(
+                    street: User.Location.Street(number: 456, name: "Broadway"),
+                    city: "Los Angeles",
+                    state: "CA",
+                    country: "USA",
+                    coordinates: User.Location.Coordinates(latitude: "34.0522", longitude: "118.2437"),
+                    timezone: User.Location.TimeZoneInfo(offset: "-8:00", description: "Pacific Time")
+                ),
+                email: "jane.smith@example.com",
+                login: User.Login(uuid: "67890", username: "janesmith", password: "securepass"),
+                dob: User.DateInfo(date: "1990-05-20T10:00:00Z", age: 35),
+                registered: User.DateInfo(date: "2015-02-15T12:00:00Z", age: 10),
+                phone: "555-9876",
+                cell: "555-6543",
+                idField: User.APIID(name: "SSN", value: "987-65-4321"),
+                picture: User.Picture(
+                    large: "https://randomuser.me/api/portraits/women/1.jpg",
+                    medium: "https://randomuser.me/api/portraits/med/women/1.jpg",
+                    thumbnail: "https://randomuser.me/api/portraits/thumb/women/1.jpg"
+                ),
+                nat: "US"
+            )
+            
+            completion(.success([mockUser]))
         }
     }
-
+    
+    // MARK: - Preview Wrapper
     struct PreviewWrapper: View {
-        @StateObject var viewModel = MockUserViewModel()
-
+        @StateObject var viewModel = UserViewModel(userService: MockUserService())
+        
         var body: some View {
-            UserListView()
+            UserListView(viewModel: viewModel)
         }
     }
 

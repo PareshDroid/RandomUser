@@ -11,7 +11,9 @@ import SwiftUI
 struct RandomUserApp: App {
     var body: some Scene {
         WindowGroup {
-            UserListView()
+            let userService = RemoteUserService() // real network service
+            let viewModel = UserViewModel(userService: userService)
+            UserListView(viewModel: viewModel)
         }
     }
 }
